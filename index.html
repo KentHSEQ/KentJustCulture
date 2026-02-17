@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Just Culture Decision Tool</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <img class="logo-img" src="Kentlogo.png" alt="Company logo" />
+        <div class="title">
+          <h1>Just Culture Decision Tool</h1>
+          <p class="subtitle">Kent Discision Tree for Just Culture</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button id="btnNew" class="btn secondary" title="Start a new assessment">New</button>
+        <button id="btnRemember" class="btn secondary" title="Save / restore last assessment on this device">Remember: Off</button>
+      </div>
+    </header>
+
+    <main class="main">
+      <!-- LEFT (LARGER): form + questions -->
+      <section class="card card-large">
+        <div class="meta">
+          <div class="meta-item">
+            <label for="caseRef">Incident Case Ref (optional)</label>
+            <input id="caseRef" type="text" placeholder="e.g., INC-2026-0142" />
+          </div>
+          <div class="meta-item">
+            <label for="assessor">Assessor (optional)</label>
+            <input id="assessor" type="text" placeholder="Your name" />
+          </div>
+          <div class="meta-item meta-wide">
+            <label for="notes">Notes (optional)</label>
+            <input id="notes" type="text" placeholder="Short context" />
+          </div>
+        </div>
+
+        <div class="question-area">
+          <div id="badge" class="badge">Ready</div>
+          <h2 id="question" class="question">Click Start to begin.</h2>
+          <p id="progress" class="progress"></p>
+        </div>
+
+        <div class="actions">
+          <button id="btnStart" class="btn primary">Start</button>
+          <button id="btnYes" class="btn primary" disabled>Yes</button>
+          <button id="btnNo" class="btn primary" disabled>No</button>
+          <button id="btnBack" class="btn secondary" disabled>Back</button>
+        </div>
+
+        <div id="resultWrap" class="result hidden" aria-live="polite">
+          <div class="result-head">
+            <h3>Result</h3>
+            <span id="outcomePill" class="pill">—</span>
+          </div>
+          <div id="resultText" class="result-text"></div>
+
+          <div class="result-actions">
+            <button id="btnPDF" class="btn primary">Download PDF</button>
+            <button id="btnCopy" class="btn secondary">Copy Summary</button>
+          </div>
+
+          <div class="print-hint muted">
+            Note: “Download PDF” opens your browser’s print dialog. Choose <b>Save as PDF</b>.
+          </div>
+        </div>
+      </section>
+
+      <!-- RIGHT: vertical flow (top-to-bottom) -->
+      <section class="card">
+        <div class="flow-header">
+          <h3>Decision Flow</h3>
+          <p class="muted">Top-to-bottom record of each question and the decision you selected.</p>
+        </div>
+
+        <div id="flowList" class="flow-list" aria-live="polite">
+          <div class="flow-empty muted">No decisions yet. Click Start.</div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <p class="muted">
+      
+      </p>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
