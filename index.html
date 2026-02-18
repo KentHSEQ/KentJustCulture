@@ -1,3 +1,6 @@
+
+
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -10,10 +13,11 @@
   <div class="app">
     <header class="header">
       <div class="brand">
-        <img class="logo-img" src="KentLogo.png" alt="Company logo" />
+         <img class="logo-img" src="KentLogo.png" alt="Company logo" />
+
         <div class="title">
           <h1>Just Culture Decision Tool</h1>
-          <p class="subtitle">Kent Discision Tree for Just Culture</p>
+          <p class="subtitle">Kent Discision Tree for Just Culture </p>
         </div>
       </div>
       <div class="header-actions">
@@ -27,18 +31,24 @@
       <section class="card card-large">
         <div class="meta">
           <div class="meta-item">
-            <label for="caseRef">Incident Case Ref (optional)</label>
-            <input id="caseRef" type="text" placeholder="e.g., INC-2026-0142" />
+            <label for="caseRef">Reference (optional)</label>
+            <input id="caseRef" type="text" placeholder="e.g, incident number" />
           </div>
           <div class="meta-item">
             <label for="assessor">Assessor (optional)</label>
             <input id="assessor" type="text" placeholder="Your name" />
+            </div>
+            <div class="meta-item meta-wide">
+        <label for="involvedName">Name of Involved</label>
+            <input id="involvedName" type="text" placeholder="Full name" />
+         </div>
+             <div class="meta-item meta-wide">
+            <label for="notes">Context (Optional)</label>
+            <input id="notes" type="text" placeholder="Short context," />
           </div>
-          <div class="meta-item meta-wide">
-            <label for="notes">Notes (optional)</label>
-            <input id="notes" type="text" placeholder="Short context" />
-          </div>
+          
         </div>
+        
 
         <div class="question-area">
           <div id="badge" class="badge">Ready</div>
@@ -86,10 +96,36 @@
 
     <footer class="footer">
       <p class="muted">
-      
+A copy of the Just Culture Decision (PDF) should be saved/attached on the incident report
       </p>
     </footer>
   </div>
+
+
+    <!-- Explanation Modal -->
+    <div id="explainModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="explainTitle">
+      <div class="modal-backdrop" id="explainBackdrop"></div>
+      <div class="modal-card">
+        <div class="modal-head">
+          <h3 id="explainTitle">Add explanation</h3>
+          <button id="btnExplainClose" class="icon-btn" aria-label="Close">✕</button>
+        </div>
+        <div class="modal-body">
+          <div class="modal-q" id="explainQuestion"></div>
+          <div class="modal-choice">
+            Selected: <span id="explainChoice" class="choice-pill">—</span>
+          </div>
+          <label class="modal-label" for="explainText">Explanation (required)</label>
+          <textarea id="explainText" rows="5" placeholder="Add short explanation / evidence / context..."></textarea>
+          <div class="modal-hint">This will appear in the Decision Flow and in the PDF summary. Tip: Ctrl+Enter to continue.</div>
+        </div>
+        <div class="modal-actions">
+          <button id="btnExplainCancel" class="btn secondary">Cancel</button>
+          <button id="btnExplainContinue" class="btn primary">Continue</button>
+        </div>
+      </div>
+    </div>
+
 
   <script src="app.js"></script>
 </body>

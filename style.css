@@ -10,7 +10,7 @@
   --border:#e2e8f0;
 
   --primary:#2ed2c9;     /* change to your primary brand color */
-  --primary-2:#2563eb;   /* optional */
+  --primary-2:#2ed2c9;   /* optional */
   --danger:#dc2626;
 
   /* Matrix outcome colors */
@@ -44,18 +44,7 @@ body{
 .logo-img{
   height:50px
 }
-.logo{
-  width: 30px; height: 30px;
-  border-radius: 14px;
-  border: 2px dashed var(--border);
-  background: var(--panel2);
-  display:flex; align-items:center; justify-content:center;
-  color: var(--muted);
-  font-weight: 800;
-  letter-spacing: .6px;
-  user-select:none;
-}
-.title h1{ margin:0; font-size: 26px; color:#2ed2c9; letter-spacing:.2px; }
+.title h1{ margin:0; font-size: 23px; color:#2ed2c9 ; letter-spacing:.2px; }
 .subtitle{ margin:6px 0 0; color: var(--muted); font-size: 13px; }
 
 .header-actions{ display:flex; gap:10px; flex-wrap:wrap; }
@@ -226,3 +215,76 @@ body{
   .badge, .pill{ border: 1px solid #ccc; color:#111; background:#f3f3f3; }
   .btn{ display:none !important; }
 }
+
+
+/* Modal */
+.modal.hidden{ display:none; }
+.modal{ position: fixed; inset: 0; z-index: 50; }
+.modal-backdrop{ position:absolute; inset:0; background: rgba(15,23,42,.45); }
+.modal-card{
+  position: relative;
+  max-width: 640px;
+  margin: 10vh auto;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 16px;
+}
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.icon-btn{
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  border-radius: 12px;
+  width: 40px; height: 40px;
+  cursor: pointer;
+  font-weight: 800;
+}
+.modal-body{ padding-top: 12px; }
+.modal-q{ font-size: 14px; line-height: 1.4; margin-bottom: 8px; }
+.modal-choice{ margin-bottom: 10px; color: var(--muted); font-size: 13px; }
+.choice-pill{
+  display:inline-block;
+  margin-left: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--border);
+  background: var(--panel2);
+  font-weight: 800;
+  color: var(--text);
+}
+.modal-label{ display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.modal-body textarea{
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  background: var(--panel2);
+  color: var(--text);
+  outline: none;
+  font-size: 14px;
+  line-height: 1.4;
+  resize: vertical;
+}
+.modal-body textarea:focus{ border-color: rgba(29,78,216,.55); }
+.modal-hint{ margin-top: 8px; color: var(--muted); font-size: 12px; }
+.modal-actions{
+  display:flex; justify-content:flex-end; gap:10px;
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+/* Flow explanation text */
+.flow-step .explain{
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--border);
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+}
+

@@ -20,3 +20,9 @@ PDF:
 Branding:
 - Edit colors in style.css under :root (primary, border, etc.)
 - Matrix colors: --m-expected, --m-coaching, --m-warning, --m-dismissal, --m-supervisor
+
+
+v5 update:
+- Each Yes/No step requires an explanation before proceeding.
+- Explanations appear in Decision Flow and PDF summary.
+- Ctrl+Enter in the explanation box to continue.

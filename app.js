@@ -5,19 +5,33 @@
    - Right-side top-to-bottom decision flow list
 */
 
-const STORAGE_KEY = "justCultureRemember_v2";
+const STORAGE_KEY = "justCultureRemember_v3";
 
 const NODES = {
-  Q1: { q: "Were the rules / procedures known and understood?", yes: "Q2",  no: "END_SUPERVISOR" },
-  Q2: { q: "Were the rules / procedures followed?",              yes: "END_EXPECTED", no: "Q3" },
-  Q3: { q: "Was the individual instructed not to follow the rules / procedures?", yes: "END_SUPERVISOR", no: "Q4" },
-  Q4: { q: "Did the individual intentionally not follow procedures and not care about the consequences?", yes: "END_DELIBERATE", no: "Q5" },
-  Q5: { q: "Was it a conscious decision not to follow the rules or procedure?", yes: "Q6", no: "Q8" },
-  Q6: { q: "Are the procedures reasonable and workable?",         yes: "END_RECKLESS", no: "END_SYSTEM_INDUCED" },
-  Q8: { q: "Would another person with similar experience make the same decision?", yes: "Q9", no: "Q10" },
-  Q9: { q: "Has the individual been found not to follow the rules / procedures before?", yes: "END_KNOWLEDGE", no: "END_HUMAN_ERROR" },
-  Q10:{ q: "Were procedures, training, selection process or experience requirements clear and adequate?", yes: "END_NEGLIGENT", no: "END_SYSTEM_PRODUCED" },
-
+  Q1: { q: "Were the rules / procedures known and understood?", 
+    yes: "Q2",  
+    no: "END_SUPERVISOR" },
+  Q2: { q: "Was the individual instructed not to follow the rules / procedures?",              yes: "END_EXPECTED", 
+    no: "Q3" },
+  Q3: { q: "Were the actions and consequences as intended?", 
+    yes: "END_DELIBERATE", 
+    no: "Q4" },
+  Q4: { q: "Were procedures knowingly violated?", 
+    yes: "Q5", 
+    no: "Q6" },
+  Q5: { q: "Are the procedures reasonable and workable?", 
+    yes: "END_RECKLESS", 
+    no: "END_SYSTEM_INDUCED" },
+  Q6: { q: "Would another person with similar experience make the same error?",         
+    yes: "Q7",
+     no: "Q8" },
+  Q7: { q: "Does the Individual have the necessary training and competence?", 
+    yes: "END_HUMAN_ERROR", 
+    no: "END_KNOWLEDGE" },
+  Q8: { q: "Was the selection process clear, adequate and implemented properly?", 
+    yes: "END_NEGLIGENT", 
+    no: "END_SYSTEM_PRODUCED" },
+ 
   END_EXPECTED:       { end:true, outcome:"Expected Behaviour → Recognition", pill:"Expected", matrix:"expected",
                         summary:"Classification: Expected Behaviour\nRecommended response: Recognition" },
   END_SUPERVISOR:     { end:true, outcome:"Supervisor subject to Just Culture Process", pill:"Supervisor", matrix:"supervisor",
@@ -60,13 +74,27 @@ const resultText = el("resultText");
 const caseRef = el("caseRef");
 const assessor = el("assessor");
 const notes = el("notes");
+const involvedName= el("involvedName");
 
 const flowList = el("flowList");
+
+// Explanation modal
+const explainModal = el("explainModal");
+const explainBackdrop = el("explainBackdrop");
+const btnExplainClose = el("btnExplainClose");
+const btnExplainCancel = el("btnExplainCancel");
+const btnExplainContinue = el("btnExplainContinue");
+const explainQuestion = el("explainQuestion");
+const explainChoice = el("explainChoice");
+const explainText = el("explainText");
+
+let pendingAnswer = null; // { isYes, nextId, q, answer }
+
 
 // State
 let currentId = null;
 let history = []; // stack of {id, answerText}
-let path = [];    // array of strings
+let path = [];    // array of { q, answer, explanation }
 let currentResult = null;
 let rememberOn = false;
 
@@ -95,9 +123,8 @@ function renderFlow(){
     return;
   }
 
-  path.forEach((p, idx) => {
-    // p format: "<question> → Yes/No"
-    const isYes = p.trim().endsWith("→ Yes");
+  path.forEach((stepObj, idx) => {
+    const isYes = (stepObj.answer === "Yes");
     const step = document.createElement("div");
     step.className = "flow-step";
 
@@ -117,10 +144,16 @@ function renderFlow(){
 
     const q = document.createElement("div");
     q.className = "qtext";
-    q.textContent = p.replace(" → Yes", "").replace(" → No", "");
+    q.textContent = stepObj.q;
 
     step.appendChild(top);
     step.appendChild(q);
+
+    const ex = document.createElement("div");
+    ex.className = "explain";
+    ex.textContent = "Explanation: " + (stepObj.explanation || "");
+    step.appendChild(ex);
+
     flowList.appendChild(step);
   });
 }
@@ -175,16 +208,18 @@ function buildSummary(endNode){
   const meta = {
     caseRef: caseRef.value.trim(),
     assessor: assessor.value.trim(),
-    notes: notes.value.trim()
+    notes: notes.value.trim(),
+    involvedName: involvedName.value.trim()
   };
 
   const metaLines = [];
   if(meta.caseRef) metaLines.push("Case Ref: " + meta.caseRef);
   if(meta.assessor) metaLines.push("Assessor: " + meta.assessor);
   if(meta.notes) metaLines.push("Notes: " + meta.notes);
+  if(meta.involvedName) metaLines.push("Name of Involved: " + meta.involvedName);
 
   const metaBlock = metaLines.length ? (metaLines.join("\n") + "\n\n") : "";
-  const flowBlock = "Decision Flow:\n- " + (path.length ? path.join("\n- ") : "—") + "\n\n";
+  const flowBlock = "Decision Flow:\n- " + (path.length ? path.map(s => `${s.q} → ${s.answer} (Explanation: ${s.explanation})`).join("\n- ") : "—") + "\n\n";
   return metaBlock + endNode.summary + "\n\n" + flowBlock + "Timestamp: " + new Date().toLocaleString();
 }
 
@@ -193,10 +228,9 @@ function answer(isYes){
   if(!node || node.end) return;
 
   const answerText = isYes ? "Yes" : "No";
-  history.push({ id: currentId, answerText });
-  path.push(node.q + " → " + answerText);
-  currentId = isYes ? node.yes : node.no;
-  renderNode();
+  const nextId = isYes ? node.yes : node.no;
+
+  openExplainModal(node.q, answerText, nextId, isYes);
 }
 
 function back(){
@@ -244,7 +278,7 @@ function loadRemember(){
 function saveRemember(){
   const payload = {
     rememberOn,
-    meta:{ caseRef: caseRef.value, assessor: assessor.value, notes: notes.value },
+    meta:{ caseRef: caseRef.value, assessor: assessor.value, notes: notes.value , involvedName: involvedName.value},
     currentId, history, path
   };
   localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
@@ -270,6 +304,7 @@ function restoreIfRemembered(){
     caseRef.value = data.meta.caseRef || "";
     assessor.value = data.meta.assessor || "";
     notes.value = data.meta.notes || "";
+    involvedName.value = data.meta.involvedName || "";
   }
   currentId = data.currentId;
   history = data.history || [];
@@ -303,6 +338,53 @@ function copySummary(){
     () => alert("Could not copy (browser blocked). You can manually select and copy the text.")
   );
 }
+
+
+function openExplainModal(qText, choiceText, nextId, isYes){
+  pendingAnswer = { isYes, nextId, q: qText, answer: choiceText };
+  explainQuestion.textContent = qText;
+  explainChoice.textContent = choiceText.toUpperCase();
+  explainChoice.className = "choice-pill " + (isYes ? "answer-yes" : "answer-no");
+  explainText.value = "";
+  explainModal.classList.remove("hidden");
+  setTimeout(() => explainText.focus(), 0);
+}
+
+function closeExplainModal(){
+  explainModal.classList.add("hidden");
+  pendingAnswer = null;
+}
+
+function commitAnswerWithExplanation(){
+  if(!pendingAnswer) return;
+
+  const explanation = (explainText.value || "").trim();
+  if(!explanation){
+    alert("Please enter an explanation before continuing.");
+    explainText.focus();
+    return;
+  }
+
+  history.push({ id: currentId, answerText: pendingAnswer.answer });
+  path.push({ q: pendingAnswer.q, answer: pendingAnswer.answer, explanation });
+
+  currentId = pendingAnswer.nextId;
+  closeExplainModal();
+  renderNode();
+}
+
+
+
+// Explanation modal events
+btnExplainClose.addEventListener("click", closeExplainModal);
+btnExplainCancel.addEventListener("click", closeExplainModal);
+explainBackdrop.addEventListener("click", closeExplainModal);
+btnExplainContinue.addEventListener("click", commitAnswerWithExplanation);
+explainText.addEventListener("keydown", (e) => {
+  if(e.key === "Enter" && (e.ctrlKey || e.metaKey)){
+    commitAnswerWithExplanation();
+  }
+});
 
 // Events
 btnStart.addEventListener("click", start);
